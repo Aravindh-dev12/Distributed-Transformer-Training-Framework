@@ -2,6 +2,8 @@
 
 A comprehensive framework for distributed transformer training from scratch, exploring **data**, **tensor**, and **pipeline parallel** training for Transformers — inspired by minigpt and picotron.
 
+Live link : https://huggingface.co/spaces/Aravindhan11/Distributed-Transformer-Framework
+
 ## What is this project?
 
 **Distributed-Transformer-Training-Framework** is an educational implementation of distributed transformer training from scratch. It demonstrates how large language models (LLMs) are trained across multiple GPUs using advanced parallelism techniques. This project is designed for learning and understanding the internals of distributed training systems.
