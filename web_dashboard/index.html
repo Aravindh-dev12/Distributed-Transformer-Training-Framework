@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent LLM Command Center</title>
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for live training visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Shifting neon background mesh -->
+    <div class="ambient-background"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar glass-panel">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i data-lucide="cpu" class="neon-icon"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>Antigravity</h1>
+                    <span>Intelligent Hub</span>
+                </div>
+            </div>
+
+            <nav class="nav-links">
+                <button class="nav-item active" data-tab="dashboard-tab">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-tab="chat-tab" id="chat-nav-btn">
+                    <i data-lucide="message-square"></i>
+                    <span>Playground</span>
+                </button>
+                <button class="nav-item" data-tab="training-tab">
+                    <i data-lucide="sliders"></i>
+                    <span>Fine-Tuning</span>
+                </button>
+                <button class="nav-item" data-tab="export-tab">
+                    <i data-lucide="cloud-lightning"></i>
+                    <span>Hugging Face</span>
+                </button>
+            </nav>
+
+            <div class="status-widget">
+                <div class="widget-header">
+                    <span class="pulse-indicator red" id="model-status-pulse"></span>
+                    <span id="model-status-text">No Model Loaded</span>
+                </div>
+                <div class="widget-details" id="model-specs-text">
+                    Select a small LLM model from Hugging Face below to initialize the intelligent framework.
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- View 1: Dashboard -->
+            <section id="dashboard-tab" class="tab-view active">
+                <div class="section-header">
+                    <h2>Framework Command Center</h2>
+                    <p>Load and manage pre-trained open-source parameters mapped directly to your custom LLaMA implementation.</p>
+                </div>
+
+                <!-- Step 1: Model Selection Card Grid -->
+                <div class="card-grid">
+                    <div class="glass-panel main-card">
+                        <h3><i data-lucide="box"></i> Load Hugging Face LLM Models</h3>
+                        <p class="subtitle">Choose a pre-trained open-source model. The framework will download config and weights from HF and convert them on-the-fly to custom LLaMA structures.</p>
+                        
+                        <div class="model-cards-container" id="model-list-container">
+                            <!-- Populated dynamically via app.js -->
+                        </div>
+
+                        <div class="loader-overlay" id="model-loader-panel" style="display: none;">
+                            <div class="loader-spinner"></div>
+                            <h4 id="loader-title">Converting weights...</h4>
+                            <p id="loader-progress">Parsing Hugging Face tensors and compiling architecture</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-bottom-grid">
+                    <!-- Framework architecture display -->
+                    <div class="glass-panel arch-card">
+                        <h3><i data-lucide="layers"></i> 3D Distributed Parallelism Status</h3>
+                        <div class="parallel-diagram">
+                            <div class="diagram-node">
+                                <h4>Data Parallelism (DP)</h4>
+                                <span class="badge blue">NAIVE ALL-REDUCE</span>
+                                <p>Gradient synchronization hooks for multi-process scaling.</p>
+                            </div>
+                            <div class="diagram-connector"></div>
+                            <div class="diagram-node">
+                                <h4>Tensor Parallelism (TP)</h4>
+                                <span class="badge purple">COLUMN & ROW SHARDED</span>
+                                <p>Simulated multi-GPU row/col sharding of weights.</p>
+                            </div>
+                            <div class="diagram-connector"></div>
+                            <div class="diagram-node">
+                                <h4>Pipeline Parallelism (PP)</h4>
+                                <span class="badge pink">AFAB / 1F1B ENGINE</span>
+                                <p>Scheduled batching across layer pipelines.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View 2: Chat Playground -->
+            <section id="chat-tab" class="tab-view">
+                <div class="playground-layout">
+                    <!-- Conversation Room -->
+                    <div class="glass-panel chat-room">
+                        <div class="chat-header">
+                            <div class="chat-meta">
+                                <span class="chat-model-badge" id="chat-active-model">SmolLM-135M</span>
+                                <div class="inference-stats" id="generation-metrics" style="display: none;">
+                                    <span><i data-lucide="zap"></i> First Token: <strong id="metric-ttft">-</strong></span>
+                                    <span><i data-lucide="gauge"></i> Speed: <strong id="metric-speed">-</strong></span>
+                                    <span><i data-lucide="hash"></i> Tokens: <strong id="metric-count">-</strong></span>
+                                </div>
+                            </div>
+                            <button class="clear-btn" id="clear-chat-btn"><i data-lucide="trash-2"></i> Clear</button>
+                        </div>
+
+                        <div class="chat-messages" id="chat-messages-container">
+                            <div class="system-bubble">
+                                <i data-lucide="info"></i> Custom LLaMA model initialized with Hugging Face weights. Start typing below to generate completions.
+                            </div>
+                        </div>
+
+                        <div class="chat-input-bar">
+                            <textarea id="chat-input" placeholder="Type a prompt for your custom model... (e.g. 'Once upon a time, in a small village...')" rows="2"></textarea>
+                            <button id="send-btn" class="send-btn"><i data-lucide="send"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Chat Settings -->
+                    <div class="glass-panel chat-settings">
+                        <h3><i data-lucide="sliders-horizontal"></i> Generation Parameters</h3>
+                        <p class="subtitle">Tweak the autoregressive sampler settings</p>
+
+                        <div class="setting-group">
+                            <label>System Prompt</label>
+                            <textarea id="system-prompt" placeholder="Optional system prompt..." rows="3">You are a helpful AI assistant.</textarea>
+                        </div>
+
+                        <div class="setting-group">
+                            <div class="setting-header">
+                                <label>Temperature</label>
+                                <span class="val-display" id="temp-val">0.7</span>
+                            </div>
+                            <input type="range" id="param-temp" min="0.0" max="2.0" step="0.1" value="0.7">
+                            <span class="desc">High values lead to creative answers, 0.0 is deterministic.</span>
+                        </div>
+
+                        <div class="setting-group">
+                            <div class="setting-header">
+                                <label>Top P (Nucleus)</label>
+                                <span class="val-display" id="topp-val">0.9</span>
+                            </div>
+                            <input type="range" id="param-topp" min="0.1" max="1.0" step="0.05" value="0.9">
+                            <span class="desc">Filters candidate tokens with cumulative probability above P.</span>
+                        </div>
+
+                        <div class="setting-group">
+                            <div class="setting-header">
+                                <label>Top K</label>
+                                <span class="val-display" id="topk-val">50</span>
+                            </div>
+                            <input type="range" id="param-topk" min="1" max="100" step="1" value="50">
+                            <span class="desc">Limits token pool to top K highest probabilities.</span>
+                        </div>
+
+                        <div class="setting-group">
+                            <div class="setting-header">
+                                <label>Max New Tokens</label>
+                                <span class="val-display" id="maxtokens-val">128</span>
+                            </div>
+                            <input type="range" id="param-maxtokens" min="16" max="512" step="16" value="128">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View 3: Training/Fine-Tuning -->
+            <section id="training-tab" class="tab-view">
+                <div class="training-layout">
+                    <!-- Trainer Panel -->
+                    <div class="glass-panel training-settings">
+                        <h3><i data-lucide="wrench"></i> Fine-Tuning Console</h3>
+                        <p class="subtitle">Optimize the loaded open-source model weights on specific text inputs.</p>
+
+                        <div class="setting-group">
+                            <label>Dataset Source</label>
+                            <select id="train-dataset">
+                                <option value="fallback">Local Framework Overview (Built-in)</option>
+                                <option value="hf:roneneldan/TinyStories">Hugging Face: TinyStories (HF Datasets)</option>
+                                <option value="custom">Custom Text Corpus (Specify Below)</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-group" id="custom-dataset-group" style="display: none;">
+                            <label>Custom Text Input</label>
+                            <textarea id="custom-dataset-text" placeholder="Paste your training text here..." rows="6"></textarea>
+                        </div>
+
+                        <div class="training-params-grid">
+                            <div class="setting-group">
+                                <label>Learning Rate</label>
+                                <input type="number" id="train-lr" step="1e-5" value="0.0003">
+                            </div>
+                            <div class="setting-group">
+                                <label>Sequence Length</label>
+                                <input type="number" id="train-seq-len" value="32">
+                            </div>
+                            <div class="setting-group">
+                                <label>Micro Batch Size</label>
+                                <input type="number" id="train-batch-size" value="1">
+                            </div>
+                            <div class="setting-group">
+                                <label>Grad Accumulation</label>
+                                <input type="number" id="train-grad-acc" value="1">
+                            </div>
+                            <div class="setting-group">
+                                <label>Max Steps</label>
+                                <input type="number" id="train-max-steps" value="50">
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button id="start-train-btn" class="primary-btn"><i data-lucide="play"></i> Start Fine-Tuning</button>
+                            <button id="stop-train-btn" class="danger-btn" style="display: none;"><i data-lucide="square"></i> Stop</button>
+                        </div>
+                    </div>
+
+                    <!-- Training Progress Visualizer -->
+                    <div class="glass-panel training-progress">
+                        <div class="progress-header">
+                            <h3><i data-lucide="line-chart"></i> Training Visualizer</h3>
+                            <span class="badge bg-dark" id="train-live-status">IDLE</span>
+                        </div>
+
+                        <div class="chart-wrapper">
+                            <canvas id="lossChart"></canvas>
+                        </div>
+
+                        <div class="live-console">
+                            <div class="console-header">
+                                <span><i data-lucide="terminal"></i> Interactive Logs</span>
+                            </div>
+                            <div class="console-body" id="train-console">
+                                &gt; Standby. Ready to train model.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View 4: Hugging Face Exporter -->
+            <section id="export-tab" class="tab-view">
+                <div class="section-header">
+                    <h2>Hugging Face Hub Deployment</h2>
+                    <p>Directly convert your optimized state weights back into a standard LLaMA structure and upload to Hugging Face.</p>
+                </div>
+
+                <div class="glass-panel export-card">
+                    <div class="export-header">
+                        <div class="hf-avatar">HF</div>
+                        <div>
+                            <h3>Host Model on Hugging Face</h3>
+                            <p class="subtitle">Deploying under your profile namespace: <strong>Aravindhan11</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="export-form">
+                        <div class="setting-group">
+                            <label>Hugging Face Profile Namespace</label>
+                            <input type="text" value="Aravindhan11" disabled class="disabled-input">
+                        </div>
+
+                        <div class="setting-group">
+                            <label>Repository Name</label>
+                            <input type="text" id="export-repo-name" placeholder="e.g. Distributed-Llama-Model" value="Distributed-Llama-Model">
+                            <span class="desc">Your repository will be publicly created at <code id="repo-url-preview">https://huggingface.co/Aravindhan11/Distributed-Llama-Model</code></span>
+                        </div>
+
+                        <div class="setting-group">
+                            <label>Hugging Face Hub User Token (Write Permission)</label>
+                            <input type="password" id="export-token" placeholder="Paste your hf_... write token here">
+                            <span class="desc">You can create a token in your <a href="https://huggingface.co/settings/tokens" target="_blank">Hugging Face Settings</a>. Safe and handled strictly in local memory.</span>
+                        </div>
+
+                        <button id="deploy-btn" class="primary-btn pulse-hover"><i data-lucide="cloud-lightning"></i> Deploy Model to Hugging Face</button>
+                    </div>
+
+                    <div class="loader-overlay" id="export-loader" style="display: none;">
+                        <div class="loader-spinner"></div>
+                        <h4>Deploying model...</h4>
+                        <p id="export-progress">Converting state keys back to HF structure and writing files</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Script Entry Point -->
+    <script src="app.js"></script>
+</body>
+</html>
